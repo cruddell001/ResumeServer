@@ -1,6 +1,7 @@
 package com.ruddell.resumeserver.controllers
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.ruddell.resumeserver.database.EducationRepository
@@ -32,7 +33,7 @@ class ApiController
 
         if (!DataImporter.hasRun) DataImporter.importContent(workRepo, eduRepo, skillRepo)
 
-        val gson = Gson()
+        val gson = GsonBuilder().disableHtmlEscaping().create()
 
         val resume = JsonObject()
         val workExperiences = JsonArray()
@@ -53,7 +54,9 @@ class ApiController
         }
         resume.add("skills", skills)
 
-        return ResponseEntity(resume.toString(), HttpStatus.OK)
+        val json = gson.toJson(resume).replace("\\u0095", "•").replace("\u0095", "•")
+
+        return ResponseEntity(json, HttpStatus.OK)
     }
 
     val sort = Sort(Sort.Direction.ASC, "id")
